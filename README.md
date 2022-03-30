@@ -1,14 +1,14 @@
 # Omnidirectional Robot Odometry
 Omnidirectional 4-wheels mobile robot odometry implementation in ROS (C++) as "Robotics" course project 2022, Politecnico di Milano.
 
-## Authors
+## 1. Authors
 - Alessandro Restifo, 12345678
 - Mirko Usuelli, 10570238
 
-## Archive files descriptions
+## 2. Archive files descriptions
 to be done...
 
-## TF tree
+## 3. TF tree
 ```
 omni-robot/
 .
@@ -45,10 +45,10 @@ omni-robot/
     └── omni_reset.srv
 ```
 
-## Custom Messages
+## 4. Custom Messages
 to be done...
 
-## Instrucions
+## 5. Instrucions
 - Insert the ROS packages by typing:
 ```
   $ mv omni-robot <path>/catkin_ws/src
@@ -70,5 +70,5 @@ to be done...
   $ roslaunch omni-robot omni-robot.launch
 ```
 
-## Further info
+## 6. Further info
 to be done...
