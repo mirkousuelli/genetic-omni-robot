@@ -48,7 +48,7 @@ omni-robot/
 ## Custom Messages
 to be done...
 
-# Instrucions
+## Instrucions
 - Insert the ROS packages by typing:
 ```
   $ mv omni-robot <path>/catkin_ws/src
@@ -70,5 +70,5 @@ to be done...
   $ roslaunch omni-robot omni-robot.launch
 ```
 
-# Further info
+## Further info
 to be done...
