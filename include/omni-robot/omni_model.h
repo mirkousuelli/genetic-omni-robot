@@ -4,6 +4,7 @@
 #include "ros/ros.h"
 #include <rosgraph_msgs/Clock.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <dynamic_reconfigure/server.h>
 
 #include "omni_odometry.h"
 
@@ -16,27 +17,28 @@ class omni_model
     ros::NodeHandle Handle;
 
     /* ROS topics */
-    ros::Subscriber vehicleCommand_subscriber;
-    ros::Publisher vehicleState_publisher;
-    ros::Publisher vehicleHeading_publisher;
-    ros::Publisher vehiclePosition_publisher;
+    ros::Subscriber foo_subscriber;
+    ros::Publisher bar_publisher;
     ros::Publisher clock_publisher;
 
     /* Parameters from ROS parameter server */
-    double dt;
-    double L;
-    double x0, y0, theta0, phi0;
-    double eps;
-    double xp, yp;
+    double dt;  // integration step
+    double x0;  // x position
+    double y0;  // y position
+    double theta0;  // heading orientation
+    double r;  // Wheel radius
+    double l;  // Wheel position along x
+    double w;  // Wheel position along y
+    double T;  // Gear ratio  
 
     /* ROS topic callbacks */
-    void vehicleCommand_MessageCallback(const std_msgs::Float64MultiArray::ConstPtr& msg);
+    void foo_MessageCallback(const std_msgs::Float64MultiArray::ConstPtr& msg);
 
     /* Node periodic task */
     void PeriodicTask(void);
     
     /* Node state variables */
-    odometry_omni_robot* simulator;
+    omni_odometry* simulator;
 
   public:
 

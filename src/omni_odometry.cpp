@@ -1,18 +1,16 @@
-#include "bicycle_ode.h"
+#include "omni_odometry.h"
 
 #include <boost/math/special_functions/sign.hpp>
 
-bicycle_ode::bicycle_ode(double deltaT) : dt(deltaT), t(0.0), state(3), V(0.0), phi(0.0), vehicleParams_set(false)
+omni_odometry::omni_odometry(double deltaT) : dt(deltaT), t(0.0), state(3), V(0.0), W(0.0), omni_params_set(false)
 {
-    // state = [ x, y, theta ]
-
     // Initial state values
     state[0] = 0.0;
     state[1] = 0.0;
     state[2] = 0.0;
 }
 
-void bicycle_ode::setInitialState(double x0, double y0, double theta0)
+void omni_odometry::setInitialState(double x0, double y0, double theta0)
 {
     // Initial state values
     state[0] = x0;
@@ -20,46 +18,50 @@ void bicycle_ode::setInitialState(double x0, double y0, double theta0)
     state[2] = theta0;
 }
 
-void bicycle_ode::setVehicleParams(double L)
+void omni_odometry::setOmniParams(double r, double l, double w, double T)
 {
     // Initialize vehicle parameters
-    this->L = L;
+    this->r = r;
+    this->l = l;
+    this->w = w;
+    this->T = T;
 
-    vehicleParams_set = true;
+    omni_params_set = true;
 }
 
-void bicycle_ode::setReferenceCommands(double velocity, double steer)
+void omni_odometry::setReferenceCommands(double velocity, double steer)
 {
-    V   = velocity;
-    phi = steer;
+    V = velocity;
+    W = steer;
 }
 
-void bicycle_ode::integrate()
+void omni_odometry::integrate()
 {
     // Check vehicle parameters are set
-    if (!vehicleParams_set) {
+    if (!omni_params_set) {
         throw std::invalid_argument( "Vehicle parameters not set!" );
     }
 
     // Integrate for one step ahead
     using namespace std::placeholders;
-    stepper.do_step(std::bind(&bicycle_ode::vehicle_ode, this, _1, _2, _3), state, t, dt);
+    stepper.do_step(std::bind(&omni_odometry::vehicle_ode, this, _1, _2, _3), state, t, dt);
 
     // Update time and steering
     t += dt;
 }
 
-void bicycle_ode::vehicle_ode(const state_type &state, state_type &dstate, double t)
+void omni_odometry::vehicle_ode(const state_type &state, state_type &dstate, double t)
 {
     using namespace boost::math;
 
     // Actual state
-    const double x     = state[0];
-    const double y     = state[1];
+    const double x = state[0];
+    const double y = state[1];
     const double theta = state[2];
 
     // Vehicle equations
-    dstate[0] = V*std::cos(theta);    // dx
-    dstate[1] = V*std::sin(theta);    // dy
-    dstate[2] = V*std::tan(phi)/L;    // dtheta
+    // TODO : write omni robot kinematic
+    // dstate[0] = V*std::cos(theta);    // dx
+    // dstate[1] = V*std::sin(theta);    // dy
+    // dstate[2] = V*std::tan(phi)/L;    // dtheta
 }

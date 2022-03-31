@@ -15,36 +15,23 @@ class omni_tester
     ros::NodeHandle Handle;
 
     /* ROS topics */
-    ros::Publisher vehicleCommand_publisher;
-    ros::Subscriber vehicleHeading_subscriber;
-    ros::Subscriber vehiclePosition_subscriber;
+    ros::Subscriber bar_subscriber;
+    ros::Publisher foo_publisher;
     
     /* Node periodic task */
     void PeriodicTask(void);
 
     /* Node state variables */
-    double xref, dxref, ddxref, yref, dyref, ddyref;
-    double speed, steer;
-
-    double dt;
-    double L;
-    double a, T, w;
-    double theta, eps;
-
-    double Vxp, Vyp;
-    double xp, yp;
-    double Kpx, Kpy;
-    double Tix, Tiy;
-    double Ts;
-
-    double err_x, err_y;
-    double I_x, I_y;
-
-    double max_err_x, max_err_y;
+    double dt;  // integration step
+    double x;  // x position
+    double y;  // y position
+    double theta;  // heading orientation
+    double vel_x;  // x velocity
+    double vel_y;  // y velocity
+    double vel_theta;  // theta velocity
 
     /* ROS topic callbacks */
-    void vehicleHeading_MessageCallback(const std_msgs::Float64MultiArray::ConstPtr& msg);
-    void vehiclePosition_MessageCallback(const std_msgs::Float64MultiArray::ConstPtr& msg);
+    void bar_MessageCallback(const std_msgs::Float64MultiArray::ConstPtr& msg);
 
   public:
     double RunPeriod;

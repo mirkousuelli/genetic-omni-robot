@@ -1,6 +1,10 @@
 # Omnidirectional Robot Odometry
 Omnidirectional 4-wheels mobile robot odometry implementation in ROS (C++) as "Robotics" course project 2022, Politecnico di Milano.
 
+Real Robot                 |  Robot Scheme
+:-------------------------:|:-------------------------:
+![](img/real.png)          |  ![](img/scene.png)
+
 ## Authors
 - Alessandro Restifo, 12345678
 - Mirko Usuelli, 10570238

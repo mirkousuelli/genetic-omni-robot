@@ -1,17 +1,15 @@
-#include "car_traj_ctrl/test_car_eight.h"
+#include "omni-robot/omni_tester.h"
 
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, NAME_OF_THIS_NODE);
   
-  test_car_eight test_car_eight_node;
+  omni_tester omni_tester_node;
    
-  test_car_eight_node.Prepare();
-  
-  test_car_eight_node.RunPeriodically(test_car_eight_node.RunPeriod);
-  
-  test_car_eight_node.Shutdown();
+  omni_tester_node.Prepare();
+  omni_tester_node.RunPeriodically(omni_tester_node.RunPeriod);
+  omni_tester_node.Shutdown();
   
   return (0);
 }

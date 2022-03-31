@@ -1,17 +1,15 @@
-#include "car_traj_ctrl/car_traj_ctrl.h"
+#include "omni-robot/omni_model.h"
 
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, NAME_OF_THIS_NODE);
   
-  car_traj_ctrl car_traj_ctrl_node;
+  omni_model omni_model_node;
    
-  car_traj_ctrl_node.Prepare();
-  
-  car_traj_ctrl_node.RunPeriodically();
-  
-  car_traj_ctrl_node.Shutdown();
+  omni_model_node.Prepare();
+  omni_model_node.RunPeriodically();
+  omni_model_node.Shutdown();
   
   return (0);
 }

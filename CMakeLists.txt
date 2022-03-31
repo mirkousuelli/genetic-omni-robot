@@ -104,7 +104,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES car_traj_ctrl
+  LIBRARIES omni-robot
   CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -120,11 +120,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(car_traj_ctrl src/car_traj_ctrl.cpp src/car_traj_ctrl_node.cpp src/bicycle_ode.cpp)
-target_link_libraries(car_traj_ctrl ${catkin_LIBRARIES})
+add_executable(omni_model src/omni_model.cpp src/omni_model_node.cpp src/omni_odometry.cpp)
+target_link_libraries(omni_model ${catkin_LIBRARIES})
 
-add_executable(test_car_eight src/test_car_eight.cpp src/test_car_eight_node.cpp)
-target_link_libraries(test_car_eight ${catkin_LIBRARIES})
+add_executable(omni_tester src/omni_tester.cpp src/omni_tester_node.cpp)
+target_link_libraries(omni_tester ${catkin_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
