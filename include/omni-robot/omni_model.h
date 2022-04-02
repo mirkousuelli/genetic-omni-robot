@@ -8,6 +8,10 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <dynamic_reconfigure/server.h>
+#include <nav_msgs/Odometry.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include "omni_odometry.h"
 
@@ -24,6 +28,7 @@ class omni_model
     ros::Subscriber WheelStates_sub;
     ros::Subscriber RobotPose_sub;
     ros::Publisher CmdVel_pub;
+    ros::Publisher Odom_pub;
 
     //ros::Publisher bar_publisher;
     //ros::Publisher clock_publisher;
@@ -32,20 +37,24 @@ class omni_model
     double dt;  // integration step
     double x;  // x position
     double y;  // y position
+    double z;  // z position
     double theta;  // heading orientation
     double r;  // Wheel radius
     double l;  // Wheel position along x
     double w;  // Wheel position along y
     double T;  // Gear ratio
-    double lw; // l + w : wheel position sum
-    double inv_lw; // l + w : wheel position sum
     double ticks[WHEELS];  // ticks for each wheel
     double rpms[WHEELS];  // rotation per minutes for each wheel
-    geometry_msgs::TwistStamped cmd_vel_msg; // linear and angular velocity
-    double lin_vel;  // linear velocity
+    geometry_msgs::TwistStamped cmd_vel_msg; // linear and angular velocity message
+    nav_msgs::Odometry odom_msg;  // odometry message
+    double lin_vel_x; // linear velocity on x
+    double lin_vel_y; // linear velocity on y
+    double lin_vel;  // linear velocity overall
     double ang_vel;  // angular velocity
     ros::Time prev;  // ROS time at the previous time
     ros::Time curr;  // ROS time at the current time
+    tf2_ros::TransformBroadcaster br;  // TF broadcaster
+    geometry_msgs::TransformStamped transformStamped;  // TF message
 
     /* ROS topic callbacks */
     void WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg);

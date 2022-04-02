@@ -11,9 +11,10 @@
   /omni_model/T: 5                        # Gear ratio
 
 # Vehicle initial state
-  /omni_model/x0: 0.0                     # Initial position x
-  /omni_model/y0: 0.0                     # Initial position y
-  /omni_model/theta0: 0.0                 # Initial heading
+  /omni_model/x0: -0.0184                 # Initial position x
+  /omni_model/y0: 0.5156                  # Initial position y
+  /omni_model/z0: 0.3644                  # Initial position z
+  /omni_model/theta0: -2.22               # Initial heading
 
 
 # "omni_tester" static configuration parameters
