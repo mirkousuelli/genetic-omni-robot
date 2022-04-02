@@ -3,7 +3,7 @@ Omnidirectional 4-wheels mobile robot odometry implementation in ROS (C++) as "R
 
 Real Robot                 |  Robot Scheme
 :-------------------------:|:-------------------------:
-![](img/real.png)          |  ![](img/scene.png)
+![](img/real.png)          |  ![](img/scheme.png)
 
 ## 1. Authors
 - Alessandro Restifo, 12345678
