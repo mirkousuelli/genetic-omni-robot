@@ -2,7 +2,7 @@
 
 #include <boost/math/special_functions/sign.hpp>
 
-omni_odometry::omni_odometry(double deltaT) : dt(deltaT), t(0.0), state(3), V(0.0), W(0.0), omni_params_set(false)
+omni_odometry::omni_odometry(double deltaT) : dt(deltaT), t(0.0), state(3), u{0.0, 0.0, 0.0, 0.0}, omni_params_set(false)
 {
     // Initial state values
     state[0] = 0.0;
@@ -29,10 +29,17 @@ void omni_odometry::setOmniParams(double r, double l, double w, double T)
     omni_params_set = true;
 }
 
-void omni_odometry::setReferenceCommands(double velocity, double steer)
+void omni_odometry::getCommands(double* u_wheels) {
+    for (int i = 0; i < WHEELS; i++) {
+        u_wheels[i] = u[i];
+    }
+};
+
+void omni_odometry::setCommands(double* u_wheels)
 {
-    V = velocity;
-    W = steer;
+    for (int i = 0; i < WHEELS; i++) {
+        u[i] = u_wheels[i];
+    }
 }
 
 void omni_odometry::integrate()

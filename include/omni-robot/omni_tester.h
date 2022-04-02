@@ -3,6 +3,9 @@
 
 #include "ros/ros.h"
 #include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Float64.h>
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
 
 #define PI 3.14159265358979323846
 
@@ -17,6 +20,8 @@ class omni_tester
     /* ROS topics */
     ros::Subscriber bar_subscriber;
     ros::Publisher foo_publisher;
+
+    rosbag::Bag bag;
     
     /* Node periodic task */
     void PeriodicTask(void);
