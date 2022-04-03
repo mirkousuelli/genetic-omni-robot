@@ -145,7 +145,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     double delta_y = lin_vel_y * dt;
     double delta_theta = ang_vel * dt;
 
-    if (true) {
+    if (false) {
         // Euler
         x += delta_x * std::cos(theta) - delta_y * std::sin(theta);
         y += delta_x * std::sin(theta) + delta_y * std::cos(theta);

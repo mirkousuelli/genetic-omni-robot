@@ -5,16 +5,16 @@
   /omni_model/dt: 0.001                   # Integration step
 
 # Robot parameters
-  /omni_model/r: 0.07                     # Wheel radius
-  /omni_model/l: 0.200                    # Wheel position along x
-  /omni_model/w: 0.169                    # Wheel position along y
+  /omni_model/r: 0.064                    # Wheel radius (initial = 0.07)
+  /omni_model/l: 0.209                    # Wheel position along x (initial = 0.200)
+  /omni_model/w: 0.159                    # Wheel position along y (initial = 0.169)
   /omni_model/T: 5                        # Gear ratio
 
 # Vehicle initial state
-  /omni_model/x0: -0.0184                 # Initial position x
-  /omni_model/y0: 0.5156                  # Initial position y
-  /omni_model/z0: 0.3644                  # Initial position z
-  /omni_model/theta0: -2.22               # Initial heading
+  /omni_model/x0: -0.0184                 # Initial position x (based on first OptiTrack pose)
+  /omni_model/y0: 0.5156                  # Initial position y (based on first OptiTrack pose)
+  /omni_model/z0: 0.3644                  # Initial position z (based on first OptiTrack pose)
+  /omni_model/theta0: -2.22               # Initial heading (based on first OptiTrack pose)
 
 
 # "omni_tester" static configuration parameters
