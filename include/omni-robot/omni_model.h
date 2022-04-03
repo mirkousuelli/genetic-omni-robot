@@ -43,16 +43,18 @@ class omni_model
     double l;  // Wheel position along x
     double w;  // Wheel position along y
     double T;  // Gear ratio
-    double ticks[WHEELS];  // ticks for each wheel
-    double rpms[WHEELS];  // rotation per minutes for each wheel
+    double prev_tick[WHEELS];  // ticks for each wheel (previous time)
+    double curr_tick[WHEELS];  // ticks for each wheel (current time)
+    double rpm[WHEELS];  // rotation per minutes for each wheel
+    double u_wheel[WHEELS];  // rpms computed from ticks
     geometry_msgs::TwistStamped cmd_vel_msg; // linear and angular velocity message
     nav_msgs::Odometry odom_msg;  // odometry message
     double lin_vel_x; // linear velocity on x
     double lin_vel_y; // linear velocity on y
     double lin_vel;  // linear velocity overall
     double ang_vel;  // angular velocity
-    ros::Time prev;  // ROS time at the previous time
-    ros::Time curr;  // ROS time at the current time
+    ros::Time prev_time;  // ROS time at the previous time
+    ros::Time curr_time;  // ROS time at the current time
     tf2_ros::TransformBroadcaster br;  // TF broadcaster
     geometry_msgs::TransformStamped transformStamped;  // TF message
 

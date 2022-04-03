@@ -61,8 +61,14 @@ void omni_model::Prepare(void)
     simulator->setOmniParams(r, l, w, T);
 
     ros::Time::init();
-    prev = ros::Time::now();
-    curr = ros::Time::now();
+    prev_time = ros::Time::now();
+    curr_time = ros::Time::now();
+
+    for (int i = 0; i < WHEELS; i++) {
+        prev_tick[i] = 0.0;
+        curr_tick[i] = 0.0;
+        u_wheel[i] = 0.0;
+    }
 
     ROS_INFO("Node %s ready to run.", ros::this_node::getName().c_str());
 }
@@ -102,61 +108,60 @@ void omni_model::RobotPose_MessageCallback(const geometry_msgs::PoseStamped::Con
 
 void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
-    for (int i = 0; i < WHEELS; i++) {
-        ticks[i] = msg->position.at(i);
-        ROS_INFO("[WHEEL-%i] tick: %.4f", i + 1, msg->position.at(i));
-    }
+    curr_time = ros::Time::now();
+    dt = (curr_time - prev_time).toSec();
+    ROS_INFO("[TIME] Previous time: %.4f", prev_time.toSec());
+    ROS_INFO("[TIME] Current time: %.4f", curr_time.toSec());
+    ROS_INFO("[TIME] Sampling Ts: %.4f", dt);
+    prev_time = curr_time;
 
     for (int i = 0; i < WHEELS; i++) {
-        rpms[i] = msg->velocity.at(i);
-        ROS_INFO("[WHEEL-%i] rpm: %.4f", i + 1, msg->velocity.at(i));
+        curr_tick[i] = msg->position.at(i);
+        u_wheel[i] = (curr_tick[i] - prev_tick[i]) / 360 * 4096 * T;
+        prev_tick[i] = curr_tick[i];
+        ROS_INFO("[WHEEL-%i] u: %.4f", i + 1, u_wheel[i]);
     }
 
-    lin_vel_x = (r / 4) * (rpms[0] + rpms[1] + rpms[2] + rpms[3]);
-    lin_vel_y = (r / 4) * (-rpms[0] + rpms[1] + rpms[2] + -rpms[3]);
-    ang_vel = (r / 4) * (1 / (l + w)) * (-rpms[0] + rpms[1] - rpms[2] + rpms[3]);
+    lin_vel_x = (r / 4) * (u_wheel[0] + u_wheel[1] + u_wheel[2] + u_wheel[3]);
+    lin_vel_y = (r / 4) * (-u_wheel[0] + u_wheel[1] + u_wheel[2] - u_wheel[3]);
+    ang_vel = (r / 4) * (1 / (l + w)) * (-u_wheel[0] + u_wheel[1] - u_wheel[2] + u_wheel[3]);
     ROS_INFO("[FORWARD-KIN] linear velocity x: %.4f", lin_vel_x);
     ROS_INFO("[FORWARD-KIN] linear velocity y: %.4f", lin_vel_y);
     ROS_INFO("[FORWARD-KIN] angular velocity z: %.4f", ang_vel);
 
     lin_vel = sqrt(pow(lin_vel_x, 2) + pow(lin_vel_y, 2));
+
     cmd_vel_msg.twist.linear.x = lin_vel_x;
     cmd_vel_msg.twist.linear.y = lin_vel_y;
     cmd_vel_msg.twist.linear.z = 0.0;
+
     cmd_vel_msg.twist.angular.x = 0.0;
     cmd_vel_msg.twist.angular.y = 0.0;
     cmd_vel_msg.twist.angular.z = ang_vel;
 
     CmdVel_pub.publish(cmd_vel_msg);
 
-    curr = ros::Time::now();
-    dt = curr.toSec() - prev.toSec();
-    ROS_INFO("[TIME] Previous time: %.4f", prev.toSec());
-    ROS_INFO("[TIME] Current time: %.4f", curr.toSec());
-    ROS_INFO("[TIME] Sampling Ts: %.4f", dt);
-    prev = curr;
+    double delta_x = lin_vel_x * dt;
+    double delta_y = lin_vel_y * dt;
+    double delta_theta = ang_vel * dt;
 
     if (true) {
         // Euler
-        x += lin_vel * dt * std::cos(theta);
-        y += lin_vel * dt * std::sin(theta);
-        theta += ang_vel * dt;
-        ROS_INFO("[ODOM-EULER] x: %.4f", x);
-        ROS_INFO("[ODOM-EULER] y: %.4f", y);
-        ROS_INFO("[ODOM-EULER] theta: %.4f", theta);
+        x += delta_x * std::cos(theta) - delta_y * std::sin(theta);
+        y += delta_x * std::sin(theta) + delta_y * std::cos(theta);
     } else {
         // Runge-Kutta
-        x += lin_vel_x * dt * std::cos(theta + ang_vel * dt * 0.5);
-        y += lin_vel_y * dt * std::sin(theta + ang_vel * dt * 0.5);
-        theta += ang_vel * dt;
-        ROS_INFO("[ODOM-KR] x: %.4f", x);
-        ROS_INFO("[ODOM-KR] y: %.4f", y);
-        ROS_INFO("[ODOM-KR] theta: %.4f", theta);
+        x += delta_x * std::cos(theta + ang_vel * dt / 2) - delta_y * std::sin(theta + ang_vel * dt / 2);
+        y += delta_x * std::sin(theta + ang_vel * dt / 2) + delta_y * std::cos(theta + ang_vel * dt / 2);
     }
+    theta += delta_theta;
+    ROS_INFO("[ODOM] x: %.4f", x);
+    ROS_INFO("[ODOM] y: %.4f", y);
+    ROS_INFO("[ODOM] theta: %.4f", theta);
 
     odom_msg.header.frame_id = "world";
     odom_msg.child_frame_id = "base_link";
-    odom_msg.header.stamp = curr;  // ang_vel = cmd_vel_msg.twist.angular.z;
+    odom_msg.header.stamp = curr_time;
     odom_msg.pose.pose.position.x = x;
     odom_msg.pose.pose.position.y = y;
     odom_msg.pose.pose.position.z = z;
@@ -171,7 +176,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     Odom_pub.publish(odom_msg);
 
     // set header
-    transformStamped.header.stamp = curr;
+    transformStamped.header.stamp = curr_time;
     transformStamped.header.frame_id = "world";
     transformStamped.child_frame_id = "base_link";
     // set x,y
