@@ -1,7 +1,8 @@
 #include "omni-robot/omni_tester.h"
 #include <boost/filesystem.hpp>
 
-namespace fs = boost::filesystem;
+//namespace fs = boost::filesystem;
+const bool DEBUG = true;
 
 void omni_tester::Prepare(void)
 {
@@ -9,22 +10,57 @@ void omni_tester::Prepare(void)
     std::string FullParamName;
 
     /* Initialize node state */
-    FullParamName = ros::this_node::getName()+"/dt";
-    if (false == Handle.getParam(FullParamName, dt))
+    FullParamName = ros::this_node::getName()+"/r";
+    if (false == Handle.getParam(FullParamName, r))
         ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
-    RunPeriod = dt;
+
+    FullParamName = ros::this_node::getName()+"/l";
+    if (false == Handle.getParam(FullParamName, l))
+        ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
+
+    FullParamName = ros::this_node::getName()+"/w";
+    if (false == Handle.getParam(FullParamName, w))
+        ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
     
     /* ROS topics */
-    foo_publisher = Handle.advertise<std_msgs::Float64MultiArray>("/foo", 1);
-    bar_subscriber = Handle.subscribe("/bar", 1, &omni_tester::bar_MessageCallback, this);
+    CmdVel_sub = Handle.subscribe("/cmd_vel", 1000, &omni_tester::CmdVel_MessageCallback, this);
+    WheelsRpm_pub = Handle.advertise<geometry_msgs::TwistStamped>("/foo", 1);  // TODO: make custom message
 
-    
-    fs::path dir ("omni-robot/bags");
-    fs::path file ("bag1.bag");
-    fs::path full_path = dir / file;
-    bag.open("/home/mirko/catkin_ws/src/omni-robot/bags/bag1.bag", rosbag::bagmode::Read);
+    //fs::path dir ("omni-robot/bags");
+    //fs::path file ("bag1.bag");
+    //fs::path full_path = dir / file;
+    //bag.open("/home/mirko/catkin_ws/src/omni-robot/bags/bag1.bag", rosbag::bagmode::Read);
 
     ROS_INFO("Node %s ready to run.", ros::this_node::getName().c_str());
+}
+
+void omni_tester::CmdVel_MessageCallback(const geometry_msgs::TwistStamped::ConstPtr& msg)
+{
+    curr_time = msg->header.stamp;
+    lin_vel_x = msg->twist.linear.x;
+    lin_vel_y = msg->twist.linear.y;
+    ang_vel = msg->twist.angular.z;
+    if (DEBUG) {
+        ROS_INFO("[TIME] *received* current time: %.4f", curr_time.toSec());
+        ROS_INFO("[FORWARD-KIN] *received* linear velocity x: %.4f", lin_vel_x);
+        ROS_INFO("[FORWARD-KIN] *received* linear velocity y: %.4f", lin_vel_y);
+        ROS_INFO("[FORWARD-KIN] *received* angular velocity z: %.4f", ang_vel);
+    }
+
+    u_wheel[0] = (1 / r) * (lin_vel_x - lin_vel_y - (l + w) * ang_vel);
+    u_wheel[1] = (1 / r) * (lin_vel_x + lin_vel_y + (l + w) * ang_vel);
+    u_wheel[2] = (1 / r) * (lin_vel_x + lin_vel_y - (l + w) * ang_vel);
+    u_wheel[3] = (1 / r) * (lin_vel_x - lin_vel_y + (l + w) * ang_vel);
+
+    if (DEBUG) {
+        for (int i = 0; i < WHEELS; i++) {
+            ROS_INFO("[WHEEL-%i] *computed* u: %.4f", i + 1, u_wheel[i]);
+        }
+    }
+
+    if (DEBUG) {
+        std::cout << std::endl;
+    }
 }
 
 void omni_tester::RunPeriodically(float Period)
@@ -43,13 +79,8 @@ void omni_tester::RunPeriodically(float Period)
 
 void omni_tester::Shutdown(void)
 {
-    bag.close();
+    //bag.close();
     ROS_INFO("Node %s shutting down.", ros::this_node::getName().c_str());
-}
-
-void omni_tester::bar_MessageCallback(const std_msgs::Float64MultiArray::ConstPtr& msg)
-{
-    // to be done...
 }
 
 void omni_tester::PeriodicTask(void)
@@ -64,9 +95,9 @@ void omni_tester::PeriodicTask(void)
     //msg.data.push_back(steer);
     //foo_publisher.publish(msg);
 
-    for(rosbag::MessageInstance const m: rosbag::View(bag)) {
+    /*for(rosbag::MessageInstance const m: rosbag::View(bag)) {
         std_msgs::Float64::ConstPtr i = m.instantiate<std_msgs::Float64>();
         if (i != nullptr)
             std::cout << i->data << std::endl;
-    }
+    }*/
 }

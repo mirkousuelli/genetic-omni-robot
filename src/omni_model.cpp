@@ -2,7 +2,8 @@
 #include <std_msgs/Float64.h>
 #include <unistd.h>
 #include <math.h>
-//#include <tf/transform_broadcaster.h>
+
+const bool DEBUG = false;
 
 
 void omni_model::Prepare(void)
@@ -11,10 +12,6 @@ void omni_model::Prepare(void)
     std::string FullParamName;
 
     /* loading parameter from the yalm server */
-    FullParamName = ros::this_node::getName()+"/dt";
-    if (false == Handle.getParam(FullParamName, dt))
-        ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
-
     FullParamName = ros::this_node::getName()+"/x0";
     if (false == Handle.getParam(FullParamName, x))
         ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
@@ -108,43 +105,54 @@ void omni_model::RobotPose_MessageCallback(const geometry_msgs::PoseStamped::Con
 
 void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
+    /* node time update */
     curr_time = ros::Time::now();
     dt = (curr_time - prev_time).toSec();
-    ROS_INFO("[TIME] Previous time: %.4f", prev_time.toSec());
-    ROS_INFO("[TIME] Current time: %.4f", curr_time.toSec());
-    ROS_INFO("[TIME] Sampling Ts: %.4f", dt);
+    if (DEBUG) {
+        ROS_INFO("[TIME] Previous time: %.4f", prev_time.toSec());
+        ROS_INFO("[TIME] Current time: %.4f", curr_time.toSec());
+        ROS_INFO("[TIME] Sampling Ts: %.4f", dt);
+    }
     prev_time = curr_time;
 
     for (int i = 0; i < WHEELS; i++) {
         curr_tick[i] = msg->position.at(i);
-        u_wheel[i] = (curr_tick[i] - prev_tick[i]) / 360 * 4096 * T;
+        if (true) {
+            // ticks to rpm (more accurate)
+            u_wheel[i] = (curr_tick[i] - prev_tick[i]) / 360 * 4096 * T;
+        } else {
+            // rpm (noisy)
+            u_wheel[i] = msg->velocity.at(i);
+        }
         prev_tick[i] = curr_tick[i];
-        ROS_INFO("[WHEEL-%i] u: %.4f", i + 1, u_wheel[i]);
+
+        if (true)
+            ROS_INFO("[WHEEL-%i] u: %.4f", i + 1, u_wheel[i]);
     }
 
+    /* forward kinematic */
     lin_vel_x = (r / 4) * (u_wheel[0] + u_wheel[1] + u_wheel[2] + u_wheel[3]);
     lin_vel_y = (r / 4) * (-u_wheel[0] + u_wheel[1] + u_wheel[2] - u_wheel[3]);
     ang_vel = (r / 4) * (1 / (l + w)) * (-u_wheel[0] + u_wheel[1] - u_wheel[2] + u_wheel[3]);
-    ROS_INFO("[FORWARD-KIN] linear velocity x: %.4f", lin_vel_x);
-    ROS_INFO("[FORWARD-KIN] linear velocity y: %.4f", lin_vel_y);
-    ROS_INFO("[FORWARD-KIN] angular velocity z: %.4f", ang_vel);
+    if (true) {
+        ROS_INFO("[FORWARD-KIN] linear velocity x: %.4f", lin_vel_x);
+        ROS_INFO("[FORWARD-KIN] linear velocity y: %.4f", lin_vel_y);
+        ROS_INFO("[FORWARD-KIN] angular velocity z: %.4f", ang_vel);
+    }
 
-    lin_vel = sqrt(pow(lin_vel_x, 2) + pow(lin_vel_y, 2));
-
+    // linear and angular velocities published into topic '/cmd_vel'
     cmd_vel_msg.twist.linear.x = lin_vel_x;
     cmd_vel_msg.twist.linear.y = lin_vel_y;
     cmd_vel_msg.twist.linear.z = 0.0;
-
     cmd_vel_msg.twist.angular.x = 0.0;
     cmd_vel_msg.twist.angular.y = 0.0;
     cmd_vel_msg.twist.angular.z = ang_vel;
-
     CmdVel_pub.publish(cmd_vel_msg);
 
+    /* odometry */
     double delta_x = lin_vel_x * dt;
     double delta_y = lin_vel_y * dt;
     double delta_theta = ang_vel * dt;
-
     if (false) {
         // Euler
         x += delta_x * std::cos(theta) - delta_y * std::sin(theta);
@@ -155,43 +163,43 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
         y += delta_x * std::sin(theta + ang_vel * dt / 2) + delta_y * std::cos(theta + ang_vel * dt / 2);
     }
     theta += delta_theta;
-    ROS_INFO("[ODOM] x: %.4f", x);
-    ROS_INFO("[ODOM] y: %.4f", y);
-    ROS_INFO("[ODOM] theta: %.4f", theta);
+    if (DEBUG) {
+        ROS_INFO("[ODOM] x: %.4f", x);
+        ROS_INFO("[ODOM] y: %.4f", y);
+        ROS_INFO("[ODOM] theta: %.4f", theta);
+    }
 
+    // odometry position published into topic '/odom'
     odom_msg.header.frame_id = "world";
     odom_msg.child_frame_id = "base_link";
     odom_msg.header.stamp = curr_time;
     odom_msg.pose.pose.position.x = x;
     odom_msg.pose.pose.position.y = y;
     odom_msg.pose.pose.position.z = z;
-
     tf2::Quaternion q;
     q.setRPY(0, 0, theta);
     odom_msg.pose.pose.orientation.x = q.x();
     odom_msg.pose.pose.orientation.y = q.y();
     odom_msg.pose.pose.orientation.z = q.z();
     odom_msg.pose.pose.orientation.w = q.w();
-
     Odom_pub.publish(odom_msg);
 
-    // set header
+    // odometry position sent to TF
     transformStamped.header.stamp = curr_time;
     transformStamped.header.frame_id = "world";
     transformStamped.child_frame_id = "base_link";
-    // set x,y
     transformStamped.transform.translation.x = x;
     transformStamped.transform.translation.y = y;
     transformStamped.transform.translation.z = z;
-    // set theta
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
     transformStamped.transform.rotation.w = q.w();
-    // send transform
     br.sendTransform(transformStamped);
 
-    std::cout << std::endl;
+    if (true) {
+        std::cout << std::endl;
+    }
 }
 
 void omni_model::PeriodicTask(void)

@@ -1,9 +1,6 @@
 # "omni_model" static configuration parameters
 # ----------------------------------------------------------------
 
-# Simulator configuration parameters
-  /omni_model/dt: 0.001                   # Integration step
-
 # Robot parameters
   /omni_model/r: 0.064                    # Wheel radius (initial = 0.07)
   /omni_model/l: 0.209                    # Wheel position along x (initial = 0.200)
@@ -20,5 +17,7 @@
 # "omni_tester" static configuration parameters
 # ----------------------------------------------------------------
 
-# Simulator configuration parameters
-  /omni_tester/dt: 0.001                  # Integration step
+# Robot parameters
+  /omni_tester/r: 0.064                    # Wheel radius (initial = 0.07)
+  /omni_tester/l: 0.209                    # Wheel position along x (initial = 0.200)
+  /omni_tester/w: 0.159                    # Wheel position along y (initial = 0.169)
