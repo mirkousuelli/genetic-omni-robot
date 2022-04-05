@@ -12,8 +12,9 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
-
-#include "omni_odometry.h"
+#include "omni_robot/omni_msg.h"
+#include "omni_robot/omni_reset.h"
+#include <omni_robot/parametersConfig.h>
 
 #define NAME_OF_THIS_NODE "omni_model"
 #define WHEELS 4
@@ -29,9 +30,14 @@ class omni_model
     ros::Subscriber RobotPose_sub;
     ros::Publisher CmdVel_pub;
     ros::Publisher Odom_pub;
+    ros::Publisher WheelsRpm_pub;
 
-    //ros::Publisher bar_publisher;
-    //ros::Publisher clock_publisher;
+    /* ROS services */
+    ros::ServiceServer Reset_srv;
+
+    /* Dynamic server */
+    dynamic_reconfigure::Server<omni_robot::parametersConfig> dynServer;
+    dynamic_reconfigure::Server<omni_robot::parametersConfig>::CallbackType f;
 
     /* Parameters from ROS parameter server */
     double dt;  // integration step
@@ -57,16 +63,19 @@ class omni_model
     ros::Time curr_time;  // ROS time at the current time
     tf2_ros::TransformBroadcaster br;  // TF broadcaster
     geometry_msgs::TransformStamped transformStamped;  // TF message
+    omni_robot::omni_msg wheels_rpm_msg;  // wheels RPM message
+    int odom_method;
 
     /* ROS topic callbacks */
     void WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg);
     void RobotPose_MessageCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
 
+    /* ROS service callbacks */
+    bool reset_callback(omni_robot::omni_reset::Request &req, omni_robot::omni_reset::Response &res);
+    void odom_callback(omni_robot::parametersConfig &config, uint32_t level);
+
     /* Node periodic task */
     void PeriodicTask(void);
-    
-    /* Node state variables */
-    omni_odometry* simulator;
 
   public:
 

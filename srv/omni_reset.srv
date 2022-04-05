@@ -1,9 +1,9 @@
 # REQUEST
-float64 x0
-float64 y0
-float64 theta0
+float64 x_new
+float64 y_new
+float64 theta_new
 ---
 # RESPONSE
-float64 x
-float64 y
-float64 theta
+float64 x_old
+float64 y_old
+float64 theta_old

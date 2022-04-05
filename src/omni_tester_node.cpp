@@ -1,4 +1,4 @@
-#include "omni-robot/omni_tester.h"
+#include "omni_robot/omni_tester.h"
 
 
 int main(int argc, char **argv)

@@ -1,4 +1,4 @@
-#include "omni-robot/omni_model.h"
+#include "omni_robot/omni_model.h"
 #include <std_msgs/Float64.h>
 #include <unistd.h>
 #include <math.h>
@@ -49,14 +49,16 @@ void omni_model::Prepare(void)
     RobotPose_sub = Handle.subscribe("/robot/pose", 1000, &omni_model::RobotPose_MessageCallback, this);
     CmdVel_pub = Handle.advertise<geometry_msgs::TwistStamped>("/cmd_vel", 1000);
     Odom_pub = Handle.advertise<nav_msgs::Odometry>("/odom", 1000);
+    WheelsRpm_pub = Handle.advertise<omni_robot::omni_msg>("wheels_bag_rpm", 1000);
 
-    /* Create simulator class */
-    simulator = new omni_odometry(dt);
+    /* ROS services */
+    Reset_srv = Handle.advertiseService("reset", &omni_model::reset_callback, this);
 
-    /* Initialize simulator class */
-    simulator->setInitialState(x, y, theta);
-    simulator->setOmniParams(r, l, w, T);
+    /* Dynamic server */
+    f = boost::bind(&omni_model::odom_callback, this, _1, _2);
+    dynServer.setCallback(f);
 
+    /* ROS Timer */
     ros::Time::init();
     prev_time = ros::Time::now();
     curr_time = ros::Time::now();
@@ -87,9 +89,6 @@ void omni_model::RunPeriodically(void)
 
 void omni_model::Shutdown(void)
 {
-    // Delete odometry object
-    delete simulator;
-
     ROS_INFO("Node %s shutting down.", ros::this_node::getName().c_str());
 }
 
@@ -129,6 +128,12 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
         if (true)
             ROS_INFO("[WHEEL-%i] u: %.4f", i + 1, u_wheel[i]);
     }
+
+    wheels_rpm_msg.rpm_fl = u_wheel[0];
+    wheels_rpm_msg.rpm_fr = u_wheel[1];
+    wheels_rpm_msg.rpm_rr = u_wheel[2];
+    wheels_rpm_msg.rpm_rl = u_wheel[3];
+    WheelsRpm_pub.publish(wheels_rpm_msg);
 
     /* forward kinematic */
     lin_vel_x = (r / 4) * (u_wheel[0] + u_wheel[1] + u_wheel[2] + u_wheel[3]);
@@ -202,38 +207,26 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     }
 }
 
+bool omni_model::reset_callback(omni_robot::omni_reset::Request &req, omni_robot::omni_reset::Response &res) {
+    res.x_old = this->x;
+    res.y_old = this->y;
+    res.theta_old = this->theta;
+
+    this->x = req.x_new;
+    this->y = req.y_new;
+    this->theta = req.theta_new;
+
+    ROS_INFO("Request to reset odometry to [x=%.4f, y=%.4f, theta=%.4f] - Responding with old odometry: [x=%.4f, y=%.4f, theta=%.4f]", req.x_new, req.y_new, req.theta_new, res.x_old, res.y_old, res.theta_old);
+
+    return true;
+}
+
+void omni_model::odom_callback(omni_robot::parametersConfig &config, uint32_t level) {
+    ROS_INFO("Reconfigure Request: %s", config.odometry == 0 ? "Euler" : "Runge-Kutta");
+    this->odom_method = config.odometry;
+}
+
 void omni_model::PeriodicTask(void)
 {
-    /* Integrate the model */
-    //simulator->integrate();
-
-    /* Extract measurement from simulator */
-    //double x, y, theta;
-
-    //double u_wheels[WHEELS];
-    //simulator->getCommands(u_wheels);
-
-    //double time;
-    //simulator->getTime(time);
-
-    /* Print simulation time every 5 sec */
-    //if (std::fabs(std::fmod(time,5.0)) < 1.0e-3)
-    //{
-    //    ROS_INFO("Simulator time: %d seconds", (int) time);
-    //}
-
-    /* Publish vehicle state */
-    //std_msgs::Float64MultiArray vehicleStateMsg;
-    //vehicleStateMsg.data.push_back(time);
-    //vehicleStateMsg.data.push_back(x);
-    //vehicleStateMsg.data.push_back(y);
-    //vehicleStateMsg.data.push_back(theta);
-    //vehicleStateMsg.data.push_back(velocity_act);
-    //vehicleStateMsg.data.push_back(steer_act);
-    //bar_publisher.publish(vehicleStateMsg);
-
-    /* Publish clock */
-    //rosgraph_msgs::Clock clockMsg;
-    //clockMsg.clock = ros::Time(time);
-    //clock_publisher.publish(clockMsg);
+    ;
 }

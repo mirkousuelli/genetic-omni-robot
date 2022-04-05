@@ -1,0 +1,13 @@
+<launch>
+  <!--- Run omni_model node -->
+  <node pkg="omni_robot" type="omni_model" respawn="false" name="omni_model" output="screen">
+    <rosparam file="$(find omni_robot)/config/omni_robot.yaml" command="load" />
+    <rosparam param="/use_sim_time">true</rosparam>
+  </node> 
+
+  <!--- Run omni_tester node -->
+  <node pkg="omni_robot" type="omni_tester" respawn="false" name="omni_tester" output="screen">
+    <rosparam file="$(find omni_robot)/config/omni_robot.yaml" command="load" />
+    <rosparam param="/use_sim_time">true</rosparam>
+  </node> 
+</launch>

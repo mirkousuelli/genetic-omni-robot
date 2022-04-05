@@ -5,6 +5,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
+#include "omni_robot/omni_msg.h"
 
 #define PI 3.14159265358979323846
 
@@ -35,6 +36,7 @@ class omni_tester
     double ang_vel;  // angular velocity
     ros::Time curr_time;  // ROS time at the current time
     double u_wheel[WHEELS];  // actuation command on wheel
+    omni_robot::omni_msg wheels_rpm_msg;  // wheels RPM message
 
     /* ROS topic callbacks */
     void CmdVel_MessageCallback(const geometry_msgs::TwistStamped::ConstPtr& msg);

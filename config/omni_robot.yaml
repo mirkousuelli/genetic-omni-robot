@@ -2,9 +2,9 @@
 # ----------------------------------------------------------------
 
 # Robot parameters
-  /omni_model/r: 0.064                    # Wheel radius (initial = 0.07)
-  /omni_model/l: 0.209                    # Wheel position along x (initial = 0.200)
-  /omni_model/w: 0.159                    # Wheel position along y (initial = 0.169)
+  /omni_model/r: 0.064                    # Wheel radius (initial = 0.07; best = 0.064)
+  /omni_model/l: 0.209                    # Wheel position along x (initial = 0.200; best = 0.209)
+  /omni_model/w: 0.159                    # Wheel position along y (initial = 0.169; best = 0.159)
   /omni_model/T: 5                        # Gear ratio
 
 # Vehicle initial state

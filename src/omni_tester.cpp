@@ -1,4 +1,4 @@
-#include "omni-robot/omni_tester.h"
+#include "omni_robot/omni_tester.h"
 #include <boost/filesystem.hpp>
 
 //namespace fs = boost::filesystem;
@@ -24,7 +24,7 @@ void omni_tester::Prepare(void)
     
     /* ROS topics */
     CmdVel_sub = Handle.subscribe("/cmd_vel", 1000, &omni_tester::CmdVel_MessageCallback, this);
-    WheelsRpm_pub = Handle.advertise<geometry_msgs::TwistStamped>("/foo", 1);  // TODO: make custom message
+    WheelsRpm_pub = Handle.advertise<omni_robot::omni_msg>("wheels_rpm", 1000);
 
     //fs::path dir ("omni-robot/bags");
     //fs::path file ("bag1.bag");
@@ -51,6 +51,12 @@ void omni_tester::CmdVel_MessageCallback(const geometry_msgs::TwistStamped::Cons
     u_wheel[1] = (1 / r) * (lin_vel_x + lin_vel_y + (l + w) * ang_vel);
     u_wheel[2] = (1 / r) * (lin_vel_x + lin_vel_y - (l + w) * ang_vel);
     u_wheel[3] = (1 / r) * (lin_vel_x - lin_vel_y + (l + w) * ang_vel);
+
+    wheels_rpm_msg.rpm_fl = u_wheel[0];
+    wheels_rpm_msg.rpm_fr = u_wheel[1];
+    wheels_rpm_msg.rpm_rr = u_wheel[2];
+    wheels_rpm_msg.rpm_rl = u_wheel[3];
+    WheelsRpm_pub.publish(wheels_rpm_msg);
 
     if (DEBUG) {
         for (int i = 0; i < WHEELS; i++) {
