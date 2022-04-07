@@ -126,7 +126,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
         prev_tick[i] = curr_tick[i];
 
         if (true)
-            ROS_INFO("[WHEEL-%i] u: %.4f", i + 1, u_wheel[i]);
+            ROS_INFO("[WHEEL-%i] u: %.4f rpm", i + 1, u_wheel[i]);
     }
 
     wheels_rpm_msg.rpm_fl = u_wheel[0];

@@ -64,7 +64,7 @@ class omni_model
     tf2_ros::TransformBroadcaster br;  // TF broadcaster
     geometry_msgs::TransformStamped transformStamped;  // TF message
     omni_robot::omni_msg wheels_rpm_msg;  // wheels RPM message
-    int odom_method;
+    int odom_method;  // dynamic configuration
 
     /* ROS topic callbacks */
     void WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg);
