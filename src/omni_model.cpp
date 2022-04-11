@@ -43,6 +43,10 @@ void omni_model::Prepare(void)
     FullParamName = ros::this_node::getName()+"/T";
     if (false == Handle.getParam(FullParamName, T))
         ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
+    
+    FullParamName = ros::this_node::getName()+"/N";
+    if (false == Handle.getParam(FullParamName, N))
+        ROS_ERROR("Node %s: unable to retrieve parameter %s.", ros::this_node::getName().c_str(), FullParamName.c_str());
 
     /* ROS topics */
     WheelStates_sub = Handle.subscribe("/wheel_states", 1000, &omni_model::WheelStates_MessageCallback, this);
@@ -104,6 +108,11 @@ void omni_model::RobotPose_MessageCallback(const geometry_msgs::PoseStamped::Con
 
 void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
+    bool USE_TICKS = false;
+    bool EULER = true; // TODO: change dynamically?
+    
+
+
     /* node time update */
     curr_time = ros::Time::now();
     dt = (curr_time - prev_time).toSec();
@@ -116,12 +125,12 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
 
     for (int i = 0; i < WHEELS; i++) {
         curr_tick[i] = msg->position.at(i);
-        if (true) {
+        if (USE_TICKS) {
             // ticks to rpm (more accurate)
-            u_wheel[i] = (curr_tick[i] - prev_tick[i]) / 360 * 4096 * T;
+            u_wheel[i] = (curr_tick[i] - prev_tick[i]) / (N * dt); // compute wheel revolutions per second with number of ticks on encoder, divided by total number of enc * time passed  //360 * 4096 * T;
         } else {
             // rpm (noisy)
-            u_wheel[i] = msg->velocity.at(i);
+            u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor(?) RPM, convert to rev per second, divide by gear ratio
         }
         prev_tick[i] = curr_tick[i];
 
@@ -158,7 +167,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     double delta_x = lin_vel_x * dt;
     double delta_y = lin_vel_y * dt;
     double delta_theta = ang_vel * dt;
-    if (false) {
+    if (EULER) {
         // Euler
         x += delta_x * std::cos(theta) - delta_y * std::sin(theta);
         y += delta_x * std::sin(theta) + delta_y * std::cos(theta);
