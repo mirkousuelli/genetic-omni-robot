@@ -47,7 +47,7 @@ omni-robot/
 ```
 
 ## 3. TF tree
-![](img/tf.png)
+![](img/tf.jpg)
 
 ## 4. Custom Messages
 to be done...
