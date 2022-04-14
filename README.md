@@ -10,9 +10,6 @@ Real Robot                 |  Robot Scheme
 - Mirko Usuelli, 10570238
 
 ## 2. Archive files descriptions
-to be done...
-
-## 3. TF tree
 ```
 omni-robot/
 .
@@ -49,6 +46,9 @@ omni-robot/
     └── omni_reset.srv
 ```
 
+## 3. TF tree
+![](img/tf.png)
+
 ## 4. Custom Messages
 to be done...
 
@@ -75,4 +75,62 @@ to be done...
 ```
 
 ## 6. Further info
-to be done...
+### (I) Compute Odometry
+- Open one terminal and start rviz:
+```
+  $ rviz
+```
+- Launch the launch file:
+```
+  $ roslaunch omni_robot omni_robot.launch
+```
+- Execute a bag file:
+```
+  $ rosbag play <bag_file>.bag
+```
+![](img/goal_1.gif)
+
+### (II) Compute Control
+- Open one terminal and start plotjugger:
+```
+  $ rosrun plotjugger plotjugger
+```
+- Launch the launch file:
+```
+  $ roslaunch omni_robot omni_robot.launch
+```
+- Execute a bag file:
+```
+  $ rosbag play <bag_file>.bag
+```
+![](img/goal_2.gif)
+
+### (III) Reset Service
+- Launch the launch file:
+```
+  $ roslaunch omni_robot omni_robot.launch
+```
+- Execute a bag file:
+```
+  $ rosbag play <bag_file>.bag
+```
+- Open another terminal and whenever you want type, for instance x=0, y=0, theta=0:
+```
+  $ rosservice /reset 0 0 0
+```
+![](img/goal_3.gif)
+
+### (IV) Dynamic Configuration for the Integration Method
+- Launch the launch file:
+```
+  $ roslaunch omni_robot omni_robot.launch
+```
+- Open one terminal and start rqt_configure:
+```
+  $ rosrun rqt_configure rqt_configure
+```
+- Execute a bag file:
+```
+  $ rosbag play <bag_file>.bag
+```
+![](img/goal_4.gif)
