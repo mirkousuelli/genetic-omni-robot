@@ -19,6 +19,11 @@
 #define NAME_OF_THIS_NODE "omni_model"
 #define WHEELS 4
 
+enum OdometryConfig{
+  EULER = 0,
+  RUNGE_KUTTA = 1
+};
+
 
 class omni_model
 {

@@ -1,13 +1,15 @@
 <launch>
   <!--- Run omni_model node -->
   <node pkg="omni_robot" type="omni_model" respawn="false" name="omni_model" output="screen">
-    <rosparam file="$(find omni_robot)/config/omni_robot.yaml" command="load" />
+    <rosparam file="$(find omni_robot)/config/omni_robot.yaml" command="load"/>
     <rosparam param="/use_sim_time">true</rosparam>
   </node> 
 
   <!--- Run omni_tester node -->
   <node pkg="omni_robot" type="omni_tester" respawn="false" name="omni_tester" output="screen">
-    <rosparam file="$(find omni_robot)/config/omni_robot.yaml" command="load" />
+    <rosparam file="$(find omni_robot)/config/omni_robot.yaml" command="load"/>
     <rosparam param="/use_sim_time">true</rosparam>
   </node> 
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="omni_world_to_odom" args="0.0082 0.0031 0.3687 0 0 0 1 world odom"/>
 </launch>

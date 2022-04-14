@@ -109,12 +109,9 @@ void omni_model::RobotPose_MessageCallback(const geometry_msgs::PoseStamped::Con
 void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
     bool USE_TICKS = false;
-    bool EULER = true; // TODO: change dynamically?
-    
-
 
     /* node time update */
-    curr_time = ros::Time::now();
+    curr_time = msg->header.stamp;
     dt = (curr_time - prev_time).toSec();
     if (DEBUG) {
         ROS_INFO("[TIME] Previous time: %.4f", prev_time.toSec());
@@ -127,7 +124,10 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
         curr_tick[i] = msg->position.at(i);
         if (USE_TICKS) {
             // ticks to rpm (more accurate)
-            u_wheel[i] = (curr_tick[i] - prev_tick[i]) / (N * dt); // compute wheel revolutions per second with number of ticks on encoder, divided by total number of enc * time passed  //360 * 4096 * T;
+            u_wheel[i] = ((curr_tick[i] - prev_tick[i]) * 60) / (dt * T * N);
+            //u_wheel[i] = u_wheel[i] / 60 / T;
+            // u_wheel[i] = (curr_tick[i] - prev_tick[i]) / (N * dt); 
+            // compute wheel revolutions per second with number of ticks on encoder, divided by total number of enc * time passed  //360 * 4096 * T;
         } else {
             // rpm (noisy)
             u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor(?) RPM, convert to rev per second, divide by gear ratio
@@ -167,16 +167,27 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     double delta_x = lin_vel_x * dt;
     double delta_y = lin_vel_y * dt;
     double delta_theta = ang_vel * dt;
-    if (EULER) {
-        // Euler
-        x += delta_x * std::cos(theta) - delta_y * std::sin(theta);
-        y += delta_x * std::sin(theta) + delta_y * std::cos(theta);
-    } else {
-        // Runge-Kutta
-        x += delta_x * std::cos(theta + ang_vel * dt / 2) - delta_y * std::sin(theta + ang_vel * dt / 2);
-        y += delta_x * std::sin(theta + ang_vel * dt / 2) + delta_y * std::cos(theta + ang_vel * dt / 2);
+
+    switch(odom_method) {
+
+        case EULER: 
+            // Euler
+            ROS_INFO("[DYN-CONF] EULER ODOMETRY");
+            x += delta_x * std::cos(theta) - delta_y * std::sin(theta);
+            y += delta_x * std::sin(theta) + delta_y * std::cos(theta);
+            break;
+
+        case RUNGE_KUTTA:
+            // Runge-Kutta
+            ROS_INFO("[DYN-CONF] RUNGE-KUTTA ODOMETRY");
+            x += delta_x * std::cos(theta + ang_vel * dt / 2) - delta_y * std::sin(theta + ang_vel * dt / 2);
+            y += delta_x * std::sin(theta + ang_vel * dt / 2) + delta_y * std::cos(theta + ang_vel * dt / 2);
+            break;
     }
+
+    // heading update is the same for both integration methods
     theta += delta_theta;
+
     if (DEBUG) {
         ROS_INFO("[ODOM] x: %.4f", x);
         ROS_INFO("[ODOM] y: %.4f", y);
@@ -184,31 +195,37 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     }
 
     // odometry position published into topic '/odom'
-    odom_msg.header.frame_id = "world";
-    odom_msg.child_frame_id = "base_link";
     odom_msg.header.stamp = curr_time;
+    odom_msg.header.frame_id = "odom";
+    odom_msg.child_frame_id = "base_link";
+
     odom_msg.pose.pose.position.x = x;
     odom_msg.pose.pose.position.y = y;
     odom_msg.pose.pose.position.z = z;
+
     tf2::Quaternion q;
     q.setRPY(0, 0, theta);
     odom_msg.pose.pose.orientation.x = q.x();
     odom_msg.pose.pose.orientation.y = q.y();
     odom_msg.pose.pose.orientation.z = q.z();
     odom_msg.pose.pose.orientation.w = q.w();
+
     Odom_pub.publish(odom_msg);
 
     // odometry position sent to TF
     transformStamped.header.stamp = curr_time;
-    transformStamped.header.frame_id = "world";
+    transformStamped.header.frame_id = "odom";
     transformStamped.child_frame_id = "base_link";
+
     transformStamped.transform.translation.x = x;
     transformStamped.transform.translation.y = y;
     transformStamped.transform.translation.z = z;
+
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
     transformStamped.transform.rotation.w = q.w();
+
     br.sendTransform(transformStamped);
 
     if (true) {
