@@ -100,10 +100,6 @@ void omni_model::RobotPose_MessageCallback(const geometry_msgs::PoseStamped::Con
     /*ROS_INFO("[POSE] x: %.4f", msg->pose.position.x);
     ROS_INFO("[POSE] y: %.4f", msg->pose.position.y);
     ROS_INFO("[POSE] z: %.4f", msg->pose.position.z);*/
-    /*tf::Pose pose;
-    tf::poseMsgToTF(msg->pose, pose);
-    double yaw_angle = tf::getYaw(pose.getRotation());
-    ROS_INFO("[POSE] YAW: %.4f", yaw_angle);*/
 }
 
 void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg)

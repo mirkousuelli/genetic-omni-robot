@@ -1,3 +1,7 @@
+/* 1st Project: 4-Wheels Omnidirectionl Robot Odometry
+ * Authors: Alessandro Restifo and Mirko Usuelli
+ * Course: Robotics 2022, Politecnico di Milano
+ */
 #ifndef OMNI_MODEL_H_
 #define OMNI_MODEL_H_
 
@@ -20,6 +24,9 @@
 #define WHEELS 4
 
 enum OdometryConfig{
+  /* Enumerative used to distinguish the integration method
+   * for the odometry task.
+   */
   EULER = 0,
   RUNGE_KUTTA = 1
 };
@@ -27,12 +34,24 @@ enum OdometryConfig{
 
 class omni_model
 {
+  /* Main class where the bag is processed and the following goals are
+   * achieved:
+   * (1) Direct Kinematic
+   * (2) --- (see class "omni_tester")
+   * (3) Odometry reset service
+   * (4) Dynamic configuration server for the integration method
+   */
   private: 
+    /* Node handler */
     ros::NodeHandle Handle;
 
     /* ROS topics */
+
+    // subscribers
     ros::Subscriber WheelStates_sub;
     ros::Subscriber RobotPose_sub;
+
+    // publishers
     ros::Publisher CmdVel_pub;
     ros::Publisher Odom_pub;
     ros::Publisher WheelsRpm_pub;
@@ -40,11 +59,11 @@ class omni_model
     /* ROS services */
     ros::ServiceServer Reset_srv;
 
-    /* Dynamic server */
+    /* Dynamic configuration server */
     dynamic_reconfigure::Server<omni_robot::parametersConfig> dynServer;
     dynamic_reconfigure::Server<omni_robot::parametersConfig>::CallbackType f;
 
-    /* Parameters from ROS parameter server */
+    /* Parameters */
     double dt;  // integration step
     double x;  // x position
     double y;  // y position
@@ -78,6 +97,8 @@ class omni_model
 
     /* ROS service callbacks */
     bool reset_callback(omni_robot::omni_reset::Request &req, omni_robot::omni_reset::Response &res);
+
+    /* ROS dynamic configuration server callbacks */
     void odom_callback(omni_robot::parametersConfig &config, uint32_t level);
 
     /* Node periodic task */
@@ -85,10 +106,9 @@ class omni_model
 
   public:
 
+    /* Node lifecycle */
     void Prepare(void);
-    
     void RunPeriodically(void);
-    
     void Shutdown(void);
 
 };

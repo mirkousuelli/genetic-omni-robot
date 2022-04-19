@@ -1,3 +1,7 @@
+/* 1st Project: 4-Wheels Omnidirectionl Robot Odometry
+ * Authors: Alessandro Restifo and Mirko Usuelli
+ * Course: Robotics 2022, Politecnico di Milano
+ */
 #ifndef OMNI_TESTER_H_
 #define OMNI_TESTER_H_
 
@@ -7,22 +11,29 @@
 #include <rosbag/view.h>
 #include "omni_robot/omni_msg.h"
 
-#define PI 3.14159265358979323846
-
 #define NAME_OF_THIS_NODE "omni_tester"
 # define WHEELS 4
 
 
 class omni_tester
 {
+  /* Support class which fullfills the following goal:
+   * (1) --- (see class "omni_model")
+   * (2) Inverse Kinematic
+   * (3) --- (see class "omni_model")
+   * (4) --- (see class "omni_model")
+   */
   private: 
+    /* Node handler */
     ros::NodeHandle Handle;
 
     /* ROS topics */
-    ros::Subscriber CmdVel_sub;
-    ros::Publisher WheelsRpm_pub;
 
-    //rosbag::Bag bag;
+    // subscribers
+    ros::Subscriber CmdVel_sub;
+
+    // publishers
+    ros::Publisher WheelsRpm_pub;
     
     /* Node periodic task */
     void PeriodicTask(void);
@@ -44,10 +55,9 @@ class omni_tester
   public:
     double RunPeriod;
 
+    /* Node lifecycle */
     void Prepare(void);
-    
     void RunPeriodically(float Period);
-    
     void Shutdown(void);
 
 };
