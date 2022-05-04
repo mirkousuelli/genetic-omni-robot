@@ -6,7 +6,7 @@ Real Robot                 |  Robot Scheme
 ![](img/real.png)          |  ![](img/scheme.png)
 
 ## 1. Authors
-- Alessandro Restifo, 12345678
+- Alessandro Restifo, 10608696
 - Mirko Usuelli, 10570238
 
 ## 2. Archive files descriptions
