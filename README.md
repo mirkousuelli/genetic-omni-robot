@@ -116,7 +116,7 @@ to be done...
 ```
 - Open another terminal and whenever you want type, for instance x=0, y=0, theta=0:
 ```
-  $ rosservice /reset 0 0 0
+  $ rosservice call /reset 0 0 0
 ```
 ![](img/goal_3.gif)
 
