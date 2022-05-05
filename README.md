@@ -50,7 +50,14 @@ omni-robot/
 ![](img/tf.jpg)
 
 ## 4. Custom Messages
-to be done...
+- omni_msg.msg : used to publish rpm wheels information for second task (which will be subscribed by the second node "omni_tester")
+```
+    Header header
+    float64 rpm_fl
+    float64 rpm_fr
+    float64 rpm_rr
+    float64 rpm_rl
+```
 
 ## 5. Instrucions
 - Insert the ROS packages by typing:
