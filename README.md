@@ -45,11 +45,15 @@ omni-robot/
 └── srv
     └── omni_reset.srv
 ```
+// TODO: aggiornare albero + descrizione dell'architettura: esempio ci sono due nodi ros, il primo nodo fa una cosa, il secondo un'altra ...etc...
 
-## 3. TF tree
+## 3. Names and meaning of the ROS parameters
+// TODO: chiedere a cudrano
+
+## 4. TF tree
 ![](img/tf.jpg)
 
-## 4. Custom Messages
+## 5. Custom Messages
 - omni_msg.msg : used to publish rpm wheels information for second task (which will be subscribed by the second node "omni_tester")
 ```
     Header header
@@ -59,7 +63,7 @@ omni-robot/
     float64 rpm_rl
 ```
 
-## 5. Instrucions
+## 6. Instrucions
 - Insert the ROS packages by typing:
 ```
   $ mv omni-robot <path>/catkin_ws/src
@@ -80,8 +84,6 @@ omni-robot/
   $ source ./devel/setup.bash
   $ roslaunch omni-robot omni-robot.launch
 ```
-
-## 6. Further info
 ### (I) Compute Odometry
 - Open one terminal and start rviz:
 ```
@@ -141,3 +143,6 @@ omni-robot/
   $ rosbag play <bag_file>.bag
 ```
 ![](img/goal_4.gif)
+
+## 7. Further info
+// TODO: genetic algortihms + images
