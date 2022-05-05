@@ -11,5 +11,7 @@
     <rosparam param="/use_sim_time">true</rosparam>
   </node> 
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="omni_world_to_odom" args="0.0082 0.0031 0.3687 0 0 0 1 world odom"/>
+  <!-- Initialization for bag3 -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="omni_world_to_odom" args="0.0054 0.0399 0.3703 0 0 0 1 world odom"/>
+  <!--- node pkg="tf2_ros" type="static_transform_publisher" name="omni_world_to_odom" args="0.0082 0.0031 0.3687 0 0 0 1 world odom"/ -->
 </launch>
