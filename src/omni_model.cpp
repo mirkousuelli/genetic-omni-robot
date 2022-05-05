@@ -119,13 +119,12 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     for (int i = 0; i < WHEELS; i++) {
         curr_tick[i] = msg->position.at(i);
         if (USE_TICKS) {
-            // ticks to rpm (more accurate)
-            u_wheel[i] = ((curr_tick[i] - prev_tick[i]) * 60) / (dt * T * N);
-            //u_wheel[i] = u_wheel[i] / 60 / T;
-            // u_wheel[i] = (curr_tick[i] - prev_tick[i]) / (N * dt); 
-            // compute wheel revolutions per second with number of ticks on encoder, divided by total number of enc * time passed  //360 * 4096 * T;
+            // ticks to wheel angular velocity, radians/second (more accurate)
+            // compute wheel angular velocity with number of ticks on motor encoder,
+            // divided by total number of enc * time passed * gear ratio  //360 * 4096 * T;
+            u_wheel[i] = (2*3.14159265*(curr_tick[i] - prev_tick[i])) / (dt * T * N);
         } else {
-            // rpm (noisy)
+            // motor rotation (radians/minute), converted to the wheel and into rad/s - noisy
             u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor(?) RPM, convert to rev per second, divide by gear ratio
         }
         prev_tick[i] = curr_tick[i];

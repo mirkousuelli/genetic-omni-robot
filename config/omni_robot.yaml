@@ -2,24 +2,24 @@
 # ----------------------------------------------------------------
 
 # Robot parameters
-  /omni_model/r: 0.070 #0.0691                     # Wheel radius (initial = 0.07; best = 0.064)
-  /omni_model/l: 0.200 #0.1965                    # Wheel position along x (initial = 0.200; best = 0.209)
-  /omni_model/w: 0.169 #0.1681                    # Wheel position along y (initial = 0.169; best = 0.159)
+  /omni_model/r: 0.070                           # Wheel radius (initial = 0.07; best = 0.064)
+  /omni_model/l: 0.199 #0.200                    # Wheel position along x (initial = 0.200; best = 0.209)
+  /omni_model/w: 0.168 #0.169                    # Wheel position along y (initial = 0.169; best = 0.159)
   /omni_model/T: 5                               # Gear ratio
-  /omni_model/N: 42 #30                           # GA Optimized number of ticks per wheel
+  /omni_model/N: 38 #42                          # GA Optimized number of ticks per wheel
 
 
 # Vehicle initial state - taken from pose.orientation.z
-  /omni_model/x0: 0.0 #0.0082                 # Initial position x (based on first OptiTrack pose)
-  /omni_model/y0: 0.0 #0.0031                  # Initial position y (based on first OptiTrack pose)
-  /omni_model/z0: 0.0 #0.3687                  # Initial position z (based on first OptiTrack pose)
-  /omni_model/theta0: 0.0 #-0.0195              # Initial heading (based on first OptiTrack pose)
+  /omni_model/x0: 0.0 #0.0082                    # Initial position x (based on first OptiTrack pose)
+  /omni_model/y0: 0.0 #0.0031                    # Initial position y (based on first OptiTrack pose)
+  /omni_model/z0: 0.0 #0.3687                    # Initial position z (based on first OptiTrack pose)
+  /omni_model/theta0: 0.0 #-0.0195               # Initial heading (based on first OptiTrack pose)
 
 
 # "omni_tester" static configuration parameters
 # ----------------------------------------------------------------
 
 # Robot parameters
-  /omni_tester/r: 0.070 #0.0691                   # Wheel radius (initial = 0.07)
-  /omni_tester/l: 0.200 #0.1965                    # Wheel position along x (initial = 0.200)
-  /omni_tester/w: 0.169 #0.1681                   # Wheel position along y (initial = 0.169)
+  /omni_tester/r: 0.070                           # Wheel radius (initial = 0.07)
+  /omni_tester/l: 0.199 #0.200                    # Wheel position along x (initial = 0.200)
+  /omni_tester/w: 0.168 #0.169                    # Wheel position along y (initial = 0.169)
