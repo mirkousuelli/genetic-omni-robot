@@ -127,7 +127,7 @@ to be done...
 ```
 - Open one terminal and start rqt_configure:
 ```
-  $ rosrun rqt_configure rqt_configure
+  $ rosrun rqt_reconfigure rqt_reconfigure
 ```
 - Execute a bag file:
 ```
