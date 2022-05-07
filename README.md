@@ -127,7 +127,7 @@ The latter is a debug node, built to update the user of the chosen parameters an
 ```
   $ rosbag play <bag_file>.bag
 ```
-![](img/goal_1.gif)
+![](img/goal_1_rviz2_mod.gif)
 
 ### (II) Compute Control
 - Open one terminal and start plotjugger:
