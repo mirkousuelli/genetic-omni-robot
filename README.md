@@ -47,14 +47,15 @@ omni-robot/
 - In launch, there is the launch file, which also includes the world initialization of the robot odometry frame.
 (The pose initialization is currently based on the bag3 bag first reading)
 
-- The source code has two main nodes, omni_model and omni_tester. While the former includes the logic which computes the odometry of the robot, both via Euler and via Runge-Kutta formulas (better explained in section 7), the latter is a debug node, built to update the user of the chosen parameters and of the odometry computed in the first node.
+- The source code has two main nodes, `omni_model` and `omni_tester`. While the former includes the logic which computes the odometry of the robot, both via Euler and via Runge-Kutta formulas (better explained in section 7), the latter is a debug node, built to update the user of the chosen parameters and of the odometry computed in the first node.
 
 - In msg is the ROS message required to publish the computed wheel velocities.
 
 - In script is the Python script used to optimize the robot parameters.
 
 ## 3. Names and meaning of the ROS parameters
-// TODO: chiedere a cudrano
+`/wheels_bag_rpm` : where wheels rpms are published directly from the ROS bag
+`/wheels_rpm` : where wheels rpms recomputed through the reverse kinematic are published to be matched with /wheels_bag_rpm in plotjuggler
 
 ## 4. TF tree structure
 ![](img/tf.jpg)
@@ -150,7 +151,7 @@ omni-robot/
 Goal 1.4 of the project is specified as a calibration (fine-tuning) of the robot parameters to match the OptiTrack trajectory, used as ground-truth data.
 To achieve this goal limiting the human intervention as much as possible, a Genetic Algorithm space search strategy has been used.
 
-The short script is implemented in python and is stored under /scripts/Param_GA_tuning.ipynb.
+The short script is implemented in python and is stored under `/scripts/Param_GA_tuning.ipynb`.
 Following is the evolutionary process of the trajectories, generated with the best solutions (robot parameters) of each epoch, from 1st to 200th generation:
 
 ![](img/GA_optimization.gif)
@@ -169,7 +170,6 @@ matplotlib
 ```
 
 Moreover the script must be extracted to the base folder.
-
 
 ### Broad description
 
