@@ -66,6 +66,7 @@ void omni_model::Prepare(void)
     ros::Time::init();
     prev_time = ros::Time::now();
     curr_time = ros::Time::now();
+    this->odom_method = 0;
 
     for (int i = 0; i < WHEELS; i++) {
         prev_tick[i] = 0.0;
@@ -104,12 +105,10 @@ void omni_model::RobotPose_MessageCallback(const geometry_msgs::PoseStamped::Con
 
 void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
-    bool USE_TICKS = false;
-
     /* node time update */
     curr_time = msg->header.stamp;
     dt = (curr_time - prev_time).toSec();
-    if (DEBUG) {
+    if (false) {
         ROS_INFO("[TIME] Previous time: %.4f", prev_time.toSec());
         ROS_INFO("[TIME] Current time: %.4f", curr_time.toSec());
         ROS_INFO("[TIME] Sampling Ts: %.4f", dt);
@@ -117,20 +116,22 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     prev_time = curr_time;
 
     for (int i = 0; i < WHEELS; i++) {
+        
         curr_tick[i] = msg->position.at(i);
-        if (USE_TICKS) {
-            // ticks to wheel angular velocity, radians/second (more accurate)
-            // compute wheel angular velocity with number of ticks on motor encoder,
-            // divided by total number of enc * time passed * gear ratio  //360 * 4096 * T;
-            u_wheel[i] = (2*3.14159265*(curr_tick[i] - prev_tick[i])) / (dt * T * N);
-        } else {
-            // motor rotation (radians/minute), converted to the wheel and into rad/s - noisy
-            u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor(?) RPM, convert to rev per second, divide by gear ratio
-        }
-        prev_tick[i] = curr_tick[i];
 
-        if (true)
-            ROS_INFO("[WHEEL-%i] u: %.4f rpm", i + 1, u_wheel[i]);
+        if (true) {
+            u_wheel[i] = (2 * 3.14159265 * (curr_tick[i] - prev_tick[i])) / (dt * T * N);
+        } else {
+            // motor rotation (radians/minute), converted to the wheel and inDEBUGto rad/s - noisy
+            u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor RPM, convert to rev per second, divide by gear ratio
+        }
+
+        if (true) {
+            ROS_INFO("[WHEEL-%i-TICKS] u: %.4f rpm", i + 1, (2 * 3.1416 * (curr_tick[i] - prev_tick[i])) / (dt * T * N));
+            ROS_INFO("[WHEEL-%i-RPMS] u: %.4f rpm", i + 1, msg->velocity.at(i) / 60 / T);
+        }
+
+        prev_tick[i] = curr_tick[i];
     }
 
     wheels_rpm_msg.rpm_fl = u_wheel[0];
@@ -143,6 +144,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     lin_vel_x = (r / 4) * (u_wheel[0] + u_wheel[1] + u_wheel[2] + u_wheel[3]);
     lin_vel_y = (r / 4) * (-u_wheel[0] + u_wheel[1] + u_wheel[2] - u_wheel[3]);
     ang_vel = (r / 4) * (1 / (l + w)) * (-u_wheel[0] + u_wheel[1] - u_wheel[2] + u_wheel[3]);
+
     if (true) {
         ROS_INFO("[FORWARD-KIN] linear velocity x: %.4f", lin_vel_x);
         ROS_INFO("[FORWARD-KIN] linear velocity y: %.4f", lin_vel_y);
@@ -183,7 +185,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     // heading update is the same for both integration methods
     theta += delta_theta;
 
-    if (DEBUG) {
+    if (true) {
         ROS_INFO("[ODOM] x: %.4f", x);
         ROS_INFO("[ODOM] y: %.4f", y);
         ROS_INFO("[ODOM] theta: %.4f", theta);
