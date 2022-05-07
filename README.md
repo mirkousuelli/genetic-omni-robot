@@ -13,30 +13,11 @@ Real Robot                 |  Robot Scheme
 ```
 omni-robot/
 .
-├── bags_new
-|   ├── bag1
-|   |   ├── robot-pose.csv
-|   |   └── wheel_states.csv
-│   ├── bag2
-|   |   ├── robot-pose.csv
-|   |   └── wheel_states.csv
-│   ├── bag3
-|   |   ├── robot-pose.csv
-|   |   └── wheel_states.csv
-│   ├── bag1.bag
-│   ├── bag2.bag
-│   └── bag3.bag
-├── bags_old
-|   ├── bag1.bag
-│   ├── bag2.bag
-│   └── bag3.bag
 ├── cfg
 │   └── parameters.cfg
 ├── CMakeLists.txt
 ├── config
 │   └── omni_robot.yaml
-├── doc
-│   └── Project1.pdf
 ├── img
 ├── include
 │   └── omni-robot
@@ -61,21 +42,16 @@ omni-robot/
     └── omni_reset.srv
 ```
 
-- In bags_new are the latest bags uploaded, while in bags_old are the initial (corrupted) bags.
-
 - In config are the optimized parameters of the robot, found with the GA optimizer.
 
-- In launch, there is the launch file, which also includes the world initialization of the robot odometry frame!
-The initialization is currently for the bag3 bag!
+- In launch, there is the launch file, which also includes the world initialization of the robot odometry frame.
+(The pose initialization is currently based on the bag3 bag first reading)
 
-- The source code has two main nodes, omni_model and omni_tester.
-The first node includes the logic which computes the odometry of the robot, both via Euler and via Runge-Kutta formulas (better explained in section 7).
-The latter is a debug node, built to update the user of the chosen parameters and of the odometry computed in the first node.
+- The source code has two main nodes, omni_model and omni_tester. While the former includes the logic which computes the odometry of the robot, both via Euler and via Runge-Kutta formulas (better explained in section 7), the latter is a debug node, built to update the user of the chosen parameters and of the odometry computed in the first node.
 
 - In msg is the ROS message required to publish the computed wheel velocities.
 
 - In script is the Python script used to optimize the robot parameters.
-
 
 ## 3. Names and meaning of the ROS parameters
 // TODO: chiedere a cudrano
@@ -103,10 +79,6 @@ The latter is a debug node, built to update the user of the chosen parameters an
   $ cd <path>/catkin_ws
   $ source ./devel/setup.bash
   $ catkin_make
-```
-- Then run `ROS core` by typing:
-```
-  $ roscore
 ```
 - Open a new terminal and launch the robot simulation as:
 ```
@@ -142,7 +114,7 @@ The latter is a debug node, built to update the user of the chosen parameters an
 ```
   $ rosbag play <bag_file>.bag
 ```
-![](img/goal_2.gif)
+![](img/goal_2_plotjuggler_mod.gif)
 
 ### (III) Reset Service
 - Launch the launch file:
@@ -157,7 +129,7 @@ The latter is a debug node, built to update the user of the chosen parameters an
 ```
   $ rosservice call /reset 0 0 0
 ```
-![](img/goal_3.gif)
+![](img/goal_3_rosservice_mod.gif)
 
 ### (IV) Dynamic Configuration for the Integration Method
 - Launch the launch file:
@@ -172,7 +144,7 @@ The latter is a debug node, built to update the user of the chosen parameters an
 ```
   $ rosbag play <bag_file>.bag
 ```
-![](img/goal_4.gif)
+![](img/goal_4_dynreconf_mod.gif)
 
 ## 7. Further info - Genetic Algorithm based robot parameters optimization
 Goal 1.4 of the project is specified as a calibration (fine-tuning) of the robot parameters to match the OptiTrack trajectory, used as ground-truth data.
