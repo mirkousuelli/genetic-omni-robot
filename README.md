@@ -54,8 +54,8 @@ omni-robot/
 - In script is the Python script used to optimize the robot parameters.
 
 ## 3. Names and meaning of the ROS parameters
-`/wheels_bag_rpm` : where wheels rpms are published directly from the ROS bag
-`/wheels_rpm` : where wheels rpms recomputed through the reverse kinematic are published to be matched with /wheels_bag_rpm in plotjuggler
+- `/wheels_bag_rpm` : where wheels rpms are published directly from the ROS bag
+- `/wheels_rpm` : where wheels rpms recomputed through the reverse kinematic are published to be matched with /wheels_bag_rpm in plotjuggler
 
 ## 4. TF tree structure
 ![](img/tf.jpg)
