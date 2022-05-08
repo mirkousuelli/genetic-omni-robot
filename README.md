@@ -44,8 +44,7 @@ omni-robot/
 
 - In config are the optimized parameters of the robot, found with the GA optimizer.
 
-- In launch, there is the launch file, which also includes the world initialization of the robot odometry frame.
-(The pose initialization is currently based on the bag3 bag first reading)
+- In launch, there is the launch file, which also includes the world initialization of the robot odometry frame (the pose initialization is currently based on the bag3 bag first reading).
 
 - The source code has two main nodes, `omni_model` and `omni_tester`. While the former includes the logic which computes the odometry of the robot, both via Euler and via Runge-Kutta formulas (better explained in section 7), the latter is a debug node, built to update the user of the chosen parameters and of the odometry computed in the first node.
 
@@ -183,6 +182,13 @@ Once the wheel velocity is known, the vehicle velocity is estimated and integrat
 
 Here are the trajectories computed with the default robot parameters found in the project slides:
 
+```
+r = 0.07
+l = 0.2
+w = 0.169
+N = 42
+```
+
 ![](img/trajectories_default_param.png)
 
 
@@ -220,5 +226,12 @@ The velocity-based joint trajectory optimization already performs the needed reg
 In order to keep the parameters as close as possible to the original ones, we still keep the regularization loss in the final delivery.
 
 Here are the trajectories computed with the delivered, optimized, parameters:
+
+```
+r = 0.07008
+l = 0.19943
+w = 0.16806
+N = 38
+```
 
 ![](img/trajectories_reg0.04_alpha0.49.png)
