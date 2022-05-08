@@ -69,10 +69,12 @@ void omni_model::Prepare(void)
     this->odom_method = 0;
 
     for (int i = 0; i < WHEELS; i++) {
-        prev_tick[i] = 0.0;
+        prev_tick[i] = 0.0; //the initial tick is NOT 0.0! It is different! The ticks are the CUMULATIVE sum of all ticks, and does not start from 0. Hence COLD_START is implemented
         curr_tick[i] = 0.0;
         u_wheel[i] = 0.0;
     }
+    delta_ticks = 0.0;
+    COLD_START = true;
 
     ROS_INFO("Node %s ready to run.", ros::this_node::getName().c_str());
 }
@@ -116,23 +118,34 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     prev_time = curr_time;
 
     for (int i = 0; i < WHEELS; i++) {
-        
         curr_tick[i] = msg->position.at(i);
-
         if (true) {
-            u_wheel[i] = (2 * 3.14159265 * (curr_tick[i] - prev_tick[i])) / (dt * T * N);
-        } else {
-            // motor rotation (radians/minute), converted to the wheel and inDEBUGto rad/s - noisy
-            u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor RPM, convert to rev per second, divide by gear ratio
-        }
+            delta_ticks = curr_tick[i] - prev_tick[i];
 
+            if (COLD_START || delta_ticks > 1000){
+                // At the beginning, the ticks are initialized to 0.0, which is NOT correct. Either the ticks are initialized to the real values each time, but such values change with each bag,
+                // or the first -and only the first- delta is set to zero. Otherwise the arrow is initialized with an enormous distance from the right stop (obviously, since delta if from many thousands of ticks to zero).
+                delta_ticks = 0;
+            }
+
+            if (DEBUG) {ROS_INFO("[DELTA_TICKS] Delta: %.4f", delta_ticks);}
+
+            // ticks to wheel angular velocity, radians/second (more accurate)
+            // compute wheel angular velocity with number of ticks on motor encoder,
+            // divided by total number of enc * time passed * gear ratio  //360 * 4096 * T;
+            u_wheel[i] = 2*3.14159265*(delta_ticks) / (dt * T * N);
+        } else {
+            // motor rotation (radians/minute), converted to the wheel and into rad/s - noisy
+            u_wheel[i] = msg->velocity.at(i) / 60 / T; // extract motor(?) RPM, convert to rev per second, divide by gear ratio
+        }
+        prev_tick[i] = curr_tick[i];
+        
         if (true) {
             ROS_INFO("[WHEEL-%i-TICKS] u: %.4f rpm", i + 1, (2 * 3.1416 * (curr_tick[i] - prev_tick[i])) / (dt * T * N));
             ROS_INFO("[WHEEL-%i-RPMS] u: %.4f rpm", i + 1, msg->velocity.at(i) / 60 / T);
         }
-
-        prev_tick[i] = curr_tick[i];
     }
+    COLD_START = false;
 
     wheels_rpm_msg.rpm_fl = u_wheel[0];
     wheels_rpm_msg.rpm_fr = u_wheel[1];

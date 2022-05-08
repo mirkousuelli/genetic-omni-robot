@@ -74,6 +74,8 @@ class omni_model
     double w;  // Wheel position along y
     double T;  // Gear ratio
     double N;  // Tick count per wheel revolution (wheel encoder)
+    bool COLD_START;
+    double delta_ticks;
     double prev_tick[WHEELS];  // ticks for each wheel (previous time)
     double curr_tick[WHEELS];  // ticks for each wheel (current time)
     double rpm[WHEELS];  // rotation per minutes for each wheel
