@@ -221,9 +221,12 @@ Last, component (3) represents a regularization factor which should constrain th
 ![](img/trajectories_reg0.04_alpha0.49_fitness.png)
 
 Thanks to the joint trajectory optimization, we show that the regularization component is not strictly necessary in the optimization process, as expected.
-The velocity-based joint trajectory optimization already performs the needed regularization, obtaining very close trajectories and parameters to the ones found with the regularization loss. (see the last cell of the jupyter notebook for the detailed parameters found by each optimization)
+The velocity-based joint trajectory optimization already performs the needed regularization, obtaining very close trajectories and parameters to the ones found with the regularization loss (see the last cell of the jupyter notebook for the detailed parameters found by each optimization).
 
 In order to keep the parameters as close as possible to the original ones, we still keep the regularization loss in the final delivery.
+In this way, the optimization process will find the parameters closest to the original ones, while satisfying the other heavier-weighted losses.
+It has to be noted, that the underlying assumption is that the default parameters are reasonable and mostly correct. If such was not the case, the regularization loss should not be employed.
+Further optimization results (without the regularization loss, with Runge-Kutta integration method, without the velocity trajectories) can be found in the last cell of the jupyter notebook.
 
 Here are the trajectories computed with the delivered, optimized, parameters:
 
