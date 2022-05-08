@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <math.h>
 
-const bool DEBUG = false;
+const bool DEBUG = true;
 
 
 void omni_model::Prepare(void)
@@ -110,7 +110,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     /* node time update */
     curr_time = msg->header.stamp;
     dt = (curr_time - prev_time).toSec();
-    if (false) {
+    if (DEBUG) {
         ROS_INFO("[TIME] Previous time: %.4f", prev_time.toSec());
         ROS_INFO("[TIME] Current time: %.4f", curr_time.toSec());
         ROS_INFO("[TIME] Sampling Ts: %.4f", dt);
@@ -140,7 +140,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
         }
         prev_tick[i] = curr_tick[i];
         
-        if (true) {
+        if (DEBUG) {
             ROS_INFO("[WHEEL-%i-TICKS] u: %.4f rpm", i + 1, (2 * 3.1416 * (curr_tick[i] - prev_tick[i])) / (dt * T * N));
             ROS_INFO("[WHEEL-%i-RPMS] u: %.4f rpm", i + 1, msg->velocity.at(i) / 60 / T);
         }
@@ -158,7 +158,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     lin_vel_y = (r / 4) * (-u_wheel[0] + u_wheel[1] + u_wheel[2] - u_wheel[3]);
     ang_vel = (r / 4) * (1 / (l + w)) * (-u_wheel[0] + u_wheel[1] - u_wheel[2] + u_wheel[3]);
 
-    if (true) {
+    if (DEBUG) {
         ROS_INFO("[FORWARD-KIN] linear velocity x: %.4f", lin_vel_x);
         ROS_INFO("[FORWARD-KIN] linear velocity y: %.4f", lin_vel_y);
         ROS_INFO("[FORWARD-KIN] angular velocity z: %.4f", ang_vel);
@@ -198,7 +198,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
     // heading update is the same for both integration methods
     theta += delta_theta;
 
-    if (true) {
+    if (DEBUG) {
         ROS_INFO("[ODOM] x: %.4f", x);
         ROS_INFO("[ODOM] y: %.4f", y);
         ROS_INFO("[ODOM] theta: %.4f", theta);
