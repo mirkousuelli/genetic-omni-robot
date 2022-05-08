@@ -30,8 +30,7 @@ omni-robot/
 ├── package.xml
 ├── README.md
 ├── script
-│   ├── params_GA_tuning.ipynb
-│   └── plot_result.py
+│   └── params_GA_tuning.ipynb
 ├── src
 │   ├── omni_model.cpp
 │   ├── omni_model_node.cpp
@@ -69,7 +68,7 @@ omni-robot/
     float64 rpm_rl
 ```
 
-## 6. Instructions to use the code
+## 6. Instructions to start/use the nodes
 - Insert the ROS packages by typing:
 ```
   $ mv omni-robot <path>/catkin_ws/src
@@ -146,7 +145,7 @@ omni-robot/
 ```
 ![](img/goal_4_dynreconf_mod.gif)
 
-## 7. Further info - Genetic Algorithm based robot parameters optimization
+## 7. Further interesting info - Genetic Algorithm based robot parameters optimization
 Goal 1.4 of the project is specified as a calibration (fine-tuning) of the robot parameters to match the OptiTrack trajectory, used as ground-truth data.
 To achieve this goal limiting the human intervention as much as possible, a Genetic Algorithm space search strategy has been used.
 
