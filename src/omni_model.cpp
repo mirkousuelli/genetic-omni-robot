@@ -122,7 +122,7 @@ void omni_model::WheelStates_MessageCallback(const sensor_msgs::JointState::Cons
         if (true) {
             delta_ticks = curr_tick[i] - prev_tick[i];
 
-            if (COLD_START || delta_ticks > 1000){
+            if (COLD_START || abs(delta_ticks) > 1000){
                 // At the beginning, the ticks are initialized to 0.0, which is NOT correct. Either the ticks are initialized to the real values each time, but such values change with each bag,
                 // or the first -and only the first- delta is set to zero. Otherwise the arrow is initialized with an enormous distance from the right stop (obviously, since delta if from many thousands of ticks to zero).
                 delta_ticks = 0;
